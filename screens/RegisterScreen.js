@@ -1,5 +1,5 @@
-import { Pressable, TextInput, View, Text } from "react-native"
-import { input } from "../constants/input.js";
+import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { useState } from "react";
 
 export default function RegisterScreen() {
@@ -32,23 +32,210 @@ export default function RegisterScreen() {
         }
     }
 
-    return (
-        <View>
-            <TextInput style={input}
-                placeholder="Enter your username" 
-                onChangeText={setUsername}
-            />
-            <TextInput style={input}
-                placeholder="Enter your email" 
-                onChangeText={setEmail}
-            />
-            <TextInput style={input}
-                placeholder="Enter your password" 
-                onChangeText={setPassword}
-            />
-            <Pressable onPress={handleAccountCreation}>
-                <Text>Create Account</Text>
-            </Pressable>
-        </View>
-    )
+return (
+        <SafeAreaView style={styles.safeArea}>
+            <KeyboardAvoidingView 
+                behavior={Platform.OS === "ios" ? "padding" : "height"} 
+                style={styles.container}
+            >
+                {/* Brand Header */}
+                <View style={styles.brandHeader}>
+                    <View style={styles.logoBadge}>
+                        <Ionicons name="person" size={18} color="#fff" />
+                    </View>
+                    <Text style={styles.brandTitle}>Commonly</Text>
+                </View>
+
+                {/* Main Content */}
+                <View style={styles.content}>
+                    {/* Plus Icon Card */}
+                    <View style={styles.iconBox}>
+                        <Feather name="plus" size={28} color="#fff" />
+                    </View>
+
+                    <Text style={styles.welcomeSubtitle}>JOIN THE CONVERSATION</Text>
+                    <Text style={styles.title}>Find your people.</Text>
+                    <Text style={styles.description}>
+                        Create an account and join thoughtful conversations about the things you care about.
+                    </Text>
+
+                    {/* Form Fields */}
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Display name</Text>
+                        <TextInput 
+                            style={styles.input}
+                            placeholder="How should we call you?"
+                            placeholderTextColor="#9ca3af"
+                            value={username}
+                            onChangeText={setUsername}
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput 
+                            style={styles.input}
+                            placeholder="you@example.com"
+                            placeholderTextColor="#9ca3af"
+                            value={email}
+                            onChangeText={setEmail}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Password</Text>
+                        <TextInput 
+                            style={styles.input}
+                            placeholder="At least 6 characters"
+                            placeholderTextColor="#9ca3af"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                        />
+                    </View>
+
+                    {/* Register Button */}
+                    <Pressable style={styles.registerButton} onPress={handleAccountCreation}>
+                        <Text style={styles.registerButtonText}>Create account</Text>
+                        <Feather name="chevron-right" size={20} color="#fff" style={styles.arrowIcon} />
+                    </Pressable>
+                </View>
+
+                {/* Footer Login Link */}
+                <View style={styles.footer}>
+                    <Text style={styles.footerText}>Already a member? </Text>
+                    <Pressable onPress={() => navigation.navigate("Login")}>
+                        <Text style={styles.loginLinkText}>Log in</Text>
+                    </Pressable>
+                </View>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
+    );
 }
+
+const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: "#FAF8F5", // Matching warm cream background
+    },
+    container: {
+        flex: 1,
+        paddingHorizontal: 24,
+        justifyContent: "space-between",
+        paddingVertical: 20,
+    },
+    brandHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 10,
+    },
+    logoBadge: {
+        backgroundColor: "#1f2937",
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 8,
+    },
+    brandTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#111827",
+    },
+    content: {
+        marginTop: 10,
+    },
+    iconBox: {
+        backgroundColor: "#f87171", // Coral-red icon badge
+        width: 56,
+        height: 56,
+        borderRadius: 16,
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 16,
+        shadowColor: "#f87171",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    welcomeSubtitle: {
+        fontSize: 11,
+        fontWeight: "bold",
+        color: "#f87171",
+        letterSpacing: 1.2,
+        marginBottom: 6,
+    },
+    title: {
+        fontSize: 30,
+        fontWeight: "bold",
+        color: "#111827",
+        marginBottom: 8,
+    },
+    description: {
+        fontSize: 14,
+        color: "#6b7280",
+        lineHeight: 20,
+        marginBottom: 20,
+    },
+    inputContainer: {
+        marginBottom: 14,
+    },
+    label: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#374151",
+        marginBottom: 6,
+    },
+    input: {
+        backgroundColor: "#fff",
+        borderWidth: 1,
+        borderColor: "#e5e7eb",
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        fontSize: 15,
+        color: "#111827",
+    },
+    registerButton: {
+        backgroundColor: "#18181b", // Sleek dark button
+        borderRadius: 14,
+        height: 54,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        elevation: 3,
+    },
+    registerButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    arrowIcon: {
+        marginLeft: 4,
+    },
+    footer: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 5,
+    },
+    footerText: {
+        color: "#6b7280",
+        fontSize: 14,
+    },
+    loginLinkText: {
+        color: "#111827",
+        fontSize: 14,
+        fontWeight: "bold",
+        textDecorationLine: "underline",
+    },
+});

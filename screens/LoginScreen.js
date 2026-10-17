@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, TextInput, Pressable } from "react-native";
-import H1 from "../components/H1.js";
+import { View, Text, StyleSheet, TextInput, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
 import { useState } from "react";
+import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import * as SecureStore from "expo-secure-store";
 
 export default function LoginScreen({ navigation }) {
@@ -36,42 +36,210 @@ export default function LoginScreen({ navigation }) {
     }
 
     return (
-        <View style={styles.container}>
-            <H1 text={"Good to see you."} />
-            <Text>Email</Text>
-            <TextInput 
-                style={styles.input} 
-                placeholder="you@example.com"
-                onChangeText={setEmail}
-            />
-            
-            <Text>Password</Text>
-            <TextInput 
-                style={styles.input} 
-                placeholder="At least 6 characters"
-                onChangeText={setPassword}
-            />
-            <Pressable onPress={handleLogin}>
-                <Text>Login</Text>
-            </Pressable>
+        <SafeAreaView style={styles.safeArea}>
+            <KeyboardAvoidingView 
+                behavior={Platform.OS === "ios" ? "padding" : "height"} 
+                style={styles.container}
+            >
+                {/* Brand Header */}
+                <View style={styles.brandHeader}>
+                    <View style={styles.logoBadge}>
+                        <Ionicons name="person" size={18} color="#fff" />
+                    </View>
+                    <Text style={styles.brandTitle}>Commonly</Text>
+                </View>
 
-            <Pressable onPress={() => navigation.navigate("Register")}>
-                <Text>Create an account!</Text>
-            </Pressable>
-        </View>
+                {/* Main Content */}
+                <View style={styles.content}>
+                    {/* Icon Card */}
+                    <View style={styles.iconBox}>
+                        <MaterialCommunityIcons name="chat-processing-outline" size={28} color="#fff" />
+                    </View>
+
+                    <Text style={styles.welcomeSubtitle}>WELCOME BACK</Text>
+                    <Text style={styles.title}>Good to see you.</Text>
+                    <Text style={styles.description}>
+                        Log in to catch up with your communities and keep the conversation going.
+                    </Text>
+
+                    {/* Form Fields */}
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput 
+                            style={styles.input}
+                            placeholder="you@example.com"
+                            placeholderTextColor="#9ca3af"
+                            value={email}
+                            onChangeText={setEmail}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Password</Text>
+                        <TextInput 
+                            style={styles.input}
+                            placeholder="At least 6 characters"
+                            placeholderTextColor="#9ca3af"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                        />
+                        <Pressable style={styles.forgotContainer}>
+                            <Text style={styles.forgotText}>Forgot password?</Text>
+                        </Pressable>
+                    </View>
+
+                    {/* Login Button */}
+                    <Pressable style={styles.loginButton} onPress={handleLogin}>
+                        <Text style={styles.loginButtonText}>Log in</Text>
+                        <Feather name="chevron-right" size={20} color="#fff" style={styles.arrowIcon} />
+                    </Pressable>
+                </View>
+
+                {/* Footer Registration Link */}
+                <View style={styles.footer}>
+                    <Text style={styles.footerText}>New around here? </Text>
+                    <Pressable onPress={() => navigation.navigate("Register")}>
+                        <Text style={styles.createAccountText}>Create an account</Text>
+                    </Pressable>
+                </View>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }, 
-  input: {
-    borderWidth: 1, 
-    borderColor: "black", 
-    width: "auto"
-  }
+    safeArea: {
+        flex: 1,
+        backgroundColor: "#FAF8F5", // Warm cream background from Figma
+    },
+    container: {
+        flex: 1,
+        paddingHorizontal: 24,
+        justifyContent: "space-between",
+        paddingVertical: 20,
+    },
+    brandHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 10,
+    },
+    logoBadge: {
+        backgroundColor: "#1f2937",
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 8,
+    },
+    brandTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#111827",
+    },
+    content: {
+        marginTop: 20,
+    },
+    iconBox: {
+        backgroundColor: "#f87171", // Coral-red color from Figma
+        width: 56,
+        height: 56,
+        borderRadius: 16,
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 20,
+        shadowColor: "#f87171",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    welcomeSubtitle: {
+        fontSize: 12,
+        fontWeight: "bold",
+        color: "#f87171",
+        letterSpacing: 1.2,
+        marginBottom: 8,
+    },
+    title: {
+        fontSize: 32,
+        fontWeight: "bold",
+        color: "#111827",
+        marginBottom: 10,
+    },
+    description: {
+        fontSize: 15,
+        color: "#6b7280",
+        lineHeight: 22,
+        marginBottom: 30,
+    },
+    inputContainer: {
+        marginBottom: 20,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#374151",
+        marginBottom: 8,
+    },
+    input: {
+        backgroundColor: "#fff",
+        borderWidth: 1,
+        borderColor: "#e5e7eb",
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 15,
+        color: "#111827",
+    },
+    forgotContainer: {
+        alignSelf: "flex-end",
+        marginTop: 8,
+    },
+    forgotText: {
+        color: "#f87171",
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    loginButton: {
+        backgroundColor: "#18181b", // Sleek dark/black button
+        borderRadius: 14,
+        height: 56,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        elevation: 3,
+    },
+    loginButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+    arrowIcon: {
+        marginLeft: 4,
+    },
+    footer: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 10,
+    },
+    footerText: {
+        color: "#6b7280",
+        fontSize: 14,
+    },
+    createAccountText: {
+        color: "#111827",
+        fontSize: 14,
+        fontWeight: "bold",
+        textDecorationLine: "underline",
+    },
 });

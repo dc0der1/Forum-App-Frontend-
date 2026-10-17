@@ -8,7 +8,9 @@ const Stack = createNativeStackNavigator();
 import LoginScreen from "../screens/LoginScreen.js";
 import Forums from "../screens/Forums.js";
 import RegisterScreen from "../screens/RegisterScreen.js";
+import ForumPost from "../screens/ForumPost.js";
 import { Pressable } from "react-native";
+import CreatePostModal from "../screens/CreatePostModal.js";
 
 export default function RootNavigator() {
 
@@ -49,6 +51,23 @@ export default function RootNavigator() {
                     component={RegisterScreen} 
                     options={{
                         title: "Register"
+                    }}
+                />
+
+                <Stack.Screen 
+                    name="Post" 
+                    component={ForumPost} 
+                    options={{
+                        title: "Commonly"
+                    }}
+                />
+
+                <Stack.Screen 
+                    name="CreatePost" 
+                    component={CreatePostModal} 
+                    options={{
+                        presentation: 'modal', 
+                        headerShown: true
                     }}
                 />
             </Stack.Navigator>
