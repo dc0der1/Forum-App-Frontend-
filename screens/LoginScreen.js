@@ -15,7 +15,7 @@ export default function LoginScreen({ navigation }) {
                 headers: {
                     "Content-Type": "application/json"
                 }, 
-                body: JSON.stringify({ email: email, password: password})
+                body: JSON.stringify({ email: email, password: password })
             });
 
             if (!response.ok) {
@@ -53,6 +53,10 @@ export default function LoginScreen({ navigation }) {
             />
             <Pressable onPress={handleLogin}>
                 <Text>Login</Text>
+            </Pressable>
+
+            <Pressable onPress={() => navigation.navigate("Register")}>
+                <Text>Create an account!</Text>
             </Pressable>
         </View>
     );
