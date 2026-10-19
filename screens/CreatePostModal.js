@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
@@ -56,6 +56,7 @@ export default function CreatePostModal({ navigation }) {
                     {/* Topic Selection Container */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Topic</Text>
+                        
                         <View style={styles.dropdownBox}>
                             <Text style={styles.dropdownText}>{category}</Text>
                             <Feather name="chevron-down" size={18} color="#111827" />

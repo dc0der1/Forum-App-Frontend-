@@ -1,47 +1,20 @@
 import { FlatList, Pressable, StyleSheet, Text, View, SafeAreaView } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import { useEffect, useState } from "react";
-import H1 from "../components/H1.js";
+import { useCallback, useEffect, useState } from "react";
 import { AntDesign, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Forums({ navigation }) {
 
     const [posts, setPosts] = useState([]);
     const [activeTab, setActiveTab] = useState("Latest");
 
-    useEffect(() => {
-        getAllPosts();
-    }, [])
-
-    async function postForum() {
-        try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch("http://10.0.2.2:8080/api/forum/create", {
-                method: "POST", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
-                }, 
-                body: JSON.stringify({
-                    postTitle: "Hi from mobile!", 
-                    postContent: "This is a post request from mobile", 
-                    category: "General"
-                })
-
-            });
-
-            const data = await response.json();
-
-            console.log(`Forum posted successfully!`);
-
+    useFocusEffect(
+        useCallback(() => {
             getAllPosts();
-        } catch (error) {
-            console.log(error);
-        }
-
-    }
-
+        }, [])   
+    );
+    
     async function getAllPosts() {
         try {
             const token = await SecureStore.getItemAsync("userToken");
@@ -62,6 +35,28 @@ export default function Forums({ navigation }) {
             setPosts(data);
 
             return data;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async function likeAPost({ postId }) {
+        try {
+            const token = await SecureStore.getItemAsync("userToken");
+
+            const response = await fetch(`http://10.0.2.2:8080/api/forum/like?forumPostId=${postId}`, {
+                method: "POST", 
+                headers: {
+                    "Content-Type": "application/json", 
+                    "Authorization": `Bearer ${token}`
+                }
+            }); 
+
+            if (!response.ok) {
+                throw new Error("Something went wrong while liking the post!");
+            }
+
+            getAllPosts();
         } catch (error) {
             console.log(error);
         }
@@ -97,7 +92,9 @@ export default function Forums({ navigation }) {
 
                 {/* Interaction Buttons Footer */}
                 <View style={styles.bottomPost}>
-                    <Pressable style={styles.likeAndReplyButtons}>
+                    <Pressable style={styles.likeAndReplyButtons} onPress={() => likeAPost(post)}
+                        android_ripple={{backgroundColor: "gray"}}
+                    >
                         <AntDesign name="heart" color="#f87171" size={16}/>
                         <Text style={styles.buttonCountText}>{post.likeCount}</Text>
                     </Pressable>
