@@ -140,6 +140,7 @@ export default function Forums({ navigation }) {
                             </View>
                         </View>
                     }
+                    onEndReached={getAllPosts}
                 />
 
                 {/* Floating Create Post Button */}

@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvo
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useState } from "react";
 
-export default function RegisterScreen() {
+export default function RegisterScreen({ navigation }) {
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");

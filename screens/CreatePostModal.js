@@ -2,11 +2,21 @@ import { useState } from "react";
 import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
+import { Dropdown } from "react-native-element-dropdown";
+
+const categoryData = [
+    { label: "Discussion", value: "Discussion" },
+    { label: "Design", value: "Design" },
+    { label: "Questions", value: "Questions" },
+    { label: "Show & Tell", value: "Show & Tell" },
+    { label: "General", value: "General" },
+];
 
 export default function CreatePostModal({ navigation }) {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [category, setCategory] = useState("Discussion"); // Default category
+    const [isFocus, setIsFocus] = useState(false);
 
     async function handleCreatePost() {
         try {
@@ -51,16 +61,33 @@ export default function CreatePostModal({ navigation }) {
                     </Pressable>
                 </View>
 
-                {/* Form Fields matching Figma */}
+                {/* Form Fields */}
                 <View style={styles.formBody}>
                     {/* Topic Selection Container */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Topic</Text>
-                        
-                        <View style={styles.dropdownBox}>
-                            <Text style={styles.dropdownText}>{category}</Text>
-                            <Feather name="chevron-down" size={18} color="#111827" />
-                        </View>
+                        <Dropdown
+                            style={[styles.dropdown, isFocus && { borderColor: "#f87171" }]}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            iconStyle={styles.iconStyle}
+                            data={categoryData}
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder={!isFocus ? 'Select topic' : '...'}
+                            value={category}
+                            onFocus={() => setIsFocus(true)}
+                            onBlur={() => setIsFocus(false)}
+                            onChange={item => {
+                                setCategory(item.value);
+                                setIsFocus(false);
+                            }}
+                            renderRightIcon={() => (
+                                <Feather name="chevron-down" size={18} color="#111827" />
+                            )}
+                        />
                     </View>
 
                     {/* Title Input */}
@@ -140,7 +167,15 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         color: "#111827",
         marginBottom: 8,
-    },
+    }, 
+    dropdown: {
+        height: 50,
+        backgroundColor: "#fff",
+        borderColor: "#e5e7eb",
+        borderWidth: 1,
+        borderRadius: 16,
+        paddingHorizontal: 16,
+    }, 
     dropdownBox: {
         flexDirection: "row",
         justifyContent: "space-between",
