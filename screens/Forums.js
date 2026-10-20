@@ -8,18 +8,25 @@ export default function Forums({ navigation }) {
 
     const [posts, setPosts] = useState([]);
     const [activeTab, setActiveTab] = useState("Latest");
+    const [page, setPage] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
 
     useFocusEffect(
         useCallback(() => {
-            getAllPosts();
+            setPage(0);
+            setHasMore(true);
+            getAllPosts(0, true);
         }, [])   
     );
     
-    async function getAllPosts() {
+    async function getAllPosts(pageNumber = 0, shouldReset = false) {
+        if (loading || (!hasMore && !shouldReset)) return;
+
         try {
             const token = await SecureStore.getItemAsync("userToken");
 
-            const response = await fetch("http://10.0.2.2:8080/api/forum/all", {
+            const response = await fetch(`http://10.0.2.2:8080/api/forum/all?page=${pageNumber}`, {
                 method: "GET", 
                 headers: {
                     "Content-Type": "application/json", 
@@ -32,13 +39,36 @@ export default function Forums({ navigation }) {
             }
 
             const data = await response.json();
-            setPosts(data);
+            
+            if (data.length === 0) {
+                setHasMore(false);
+            }
 
+            if (shouldReset) {
+                setPosts(data);
+            } else {
+                setPosts(prevPosts => {
+                    const existingIds = new Set(prevPosts.map(p => p.postId));
+                    const uniqueNewPosts = data.filter(p => !existingIds.has(p.postId));
+                    return [...prevPosts, ...uniqueNewPosts];
+                });
+            }
+
+            setLoading(false);
             return data;
         } catch (error) {
+            setLoading(false);
             console.log(error);
         }
     }
+
+    const handleLoadMore = () => {
+        if (!loading && hasMore) {
+            const nextPage = page + 1;
+            setPage(nextPage);
+            getAllPosts(nextPage, false);
+        }
+    };
 
     async function likeAPost({ postId }) {
         try {
@@ -119,6 +149,8 @@ export default function Forums({ navigation }) {
                     renderItem={({item}) => <Item post={item}/>} 
                     keyExtractor={item => item.postId} 
                     showsVerticalScrollIndicator={false}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.5}
                     ListHeaderComponent={
                         <View style={styles.headerContainer}>
                             <Text style={styles.subtitle}>YOUR COMMUNITY FEED</Text>
@@ -140,7 +172,6 @@ export default function Forums({ navigation }) {
                             </View>
                         </View>
                     }
-                    onEndReached={getAllPosts}
                 />
 
                 {/* Floating Create Post Button */}
