@@ -36,6 +36,7 @@ export default function RootNavigator() {
                             <Pressable 
                                 onPress={async () => {
                                 await SecureStore.deleteItemAsync("userToken");
+                                await SecureStore.deleteItemAsync("userId");
 
                                 navigation.replace("Login");
                                 }}

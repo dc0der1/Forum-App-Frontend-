@@ -1,12 +1,15 @@
 import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useState } from "react";
+import ErrorMessage from "../components/ErrorMessage";
 
 export default function RegisterScreen({ navigation }) {
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [errorMessageColor, setErrorMessageColor] = useState("red");
 
     async function handleAccountCreation() {
         try {
@@ -22,14 +25,71 @@ export default function RegisterScreen({ navigation }) {
                 })
             });
 
+            if (!username || username.trim() === "" || 
+                !email || email.trim() === "" || 
+                !password || password.trim() === "") {
+                setErrorMessage("Please make sure your input fields aren't empty!");
+                return;
+            }
+
+            if (username.length < 4) {
+                setErrorMessage("Your username has to be at least 4 letters.");
+                return;
+            }
+
+            validateEmail(email);
+
+            if (password.length < 8) {
+                setErrorMessage("Password must be at least 8 characters");
+                return;
+            }
+
+            validatePassword(password);
+
             if (!response.ok) {
-                throw new Error("Something went wrong");
+                setErrorMessage("Something went wrong");
+                return;
             }
 
             console.log("Account created successfully");
+            setErrorMessage("Successfully created an account!");
+            setErrorMessageColor("green");
         } catch (error) {
             console.error(error);
         }
+    }
+
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email)) {
+            setErrorMessage("Please enter a valid email address");
+        }
+
+        return "";
+    }
+
+    function validatePassword(password) {
+        const hasNumber = /[0-9]/.test(password);
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasSpecialChar = /[@#$%^&+=!]/.test(password);
+
+        if (!hasNumber) {
+            setErrorMessage("Password must contain at least one number");
+            return;
+        }
+
+        if (!hasUppercase) {
+            setErrorMessage("Password must contain at least one uppercase letter");
+            return;
+        }
+
+        if (!hasSpecialChar) {
+            setErrorMessage("Password must contain at least one special character");
+            return;
+        }
+
+        return "";
     }
 
 return (
@@ -58,6 +118,8 @@ return (
                     <Text style={styles.description}>
                         Create an account and join thoughtful conversations about the things you care about.
                     </Text>
+
+                    <ErrorMessage errorMessage={errorMessage} color={errorMessageColor}/>
 
                     {/* Form Fields */}
                     <View style={styles.inputContainer}>

@@ -9,16 +9,23 @@ export default function Forums({ navigation }) {
     const [posts, setPosts] = useState([]);
     const [activeTab, setActiveTab] = useState("Latest");
     const [page, setPage] = useState(0);
+    const [currentUserId, setCurrentUserId] = useState("");
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
 
-    useFocusEffect(
+useFocusEffect(
         useCallback(() => {
-            setPage(0);
-            setHasMore(true);
-            getAllPosts(0, true);
+            async function initializeScreen() {
+                const username = await SecureStore.getItemAsync("userId");
+                setCurrentUserId(username || "");
+
+                setPage(0);
+                setHasMore(true);
+                getAllPosts(0, true);
+            }
+            initializeScreen();
         }, [])   
-    );
+);
     
     async function getAllPosts(pageNumber = 0, shouldReset = false) {
         if (loading || (!hasMore && !shouldReset)) return;
@@ -80,15 +87,40 @@ export default function Forums({ navigation }) {
                     "Content-Type": "application/json", 
                     "Authorization": `Bearer ${token}`
                 }
-            }); 
+            });
+
+            console.log("Successfully liked a post!");
 
             if (!response.ok) {
                 throw new Error("Something went wrong while liking the post!");
             }
 
-            getAllPosts();
+            setPage(0);
+            setHasMore(true);
+            getAllPosts(0, true);
         } catch (error) {
             console.log(error);
+        }
+    }
+
+    async function deletePost(postId) {
+        try {
+            const token = await SecureStore.getItemAsync("userToken");
+
+            const response = await fetch(`http://10.0.2.2:8080/api/forum/delete?forumPostId=${postId}`, {
+                method: "DELETE", 
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }); 
+
+            if (!response.ok) throw new Error("Failed to delete post");
+
+            setPage(0);
+            setHasMore(true);
+            getAllPosts(0, true);
+        } catch (error) {
+            console.error(error);
         }
     }
 
@@ -97,6 +129,8 @@ export default function Forums({ navigation }) {
         const initials = post.userResponse?.username 
             ? post.userResponse.username.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
             : "U";
+
+        const isOwner = post.userResponse?.userId === currentUserId;
 
         return (
             <View style={styles.card}>
@@ -136,6 +170,15 @@ export default function Forums({ navigation }) {
                         <MaterialCommunityIcons name="message-outline" color="#4b5563" size={16}/>
                         <Text style={styles.buttonCountText}>{post.replyCount}</Text>
                     </Pressable>
+
+                    {isOwner && (
+                        <Pressable
+                            onPress={() => deletePost(post.postId)}
+                            style={styles.deleteButton}
+                        >
+                            <Feather name="trash-2" size={16} color={"#ef4444"}/>
+                        </Pressable>
+                    )}
                 </View>
             </View>
         );
@@ -191,7 +234,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        paddingHorizontal: 16,
+        paddingHorizontal: 16, 
     },
     headerContainer: {
         paddingVertical: 10,
@@ -322,6 +365,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12, 
         paddingVertical: 6, 
         borderRadius: 12
+    },
+    deleteButton: { 
+        padding: 6, 
+        backgroundColor: "#ffeeef", 
+        borderRadius: 10 
     },
     buttonCountText: {
         fontSize: 12,

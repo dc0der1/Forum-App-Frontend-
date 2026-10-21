@@ -2,11 +2,14 @@ import { View, Text, StyleSheet, TextInput, Pressable, SafeAreaView, KeyboardAvo
 import { useState } from "react";
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import * as SecureStore from "expo-secure-store";
+import ErrorMessage from "../components/ErrorMessage";
 
 export default function LoginScreen({ navigation }) {
     
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [errorMessageColor, setErrorMessageColor] = useState("red");
 
     async function handleLogin() {
         try {
@@ -18,13 +21,25 @@ export default function LoginScreen({ navigation }) {
                 body: JSON.stringify({ email: email, password: password })
             });
 
+            if (email.trim() === "") {
+                setErrorMessage("Email input cannot be empty!");
+                return;
+            }
+
+            if (password.trim() === "") {
+                setErrorMessage("Password input cannot be empty!");
+                return;
+            }
+
             if (!response.ok) {
-                throw new Error("Invalid email or password!");
+                setErrorMessage("Invalid email or password!");
+                return;
             }
 
             const data = await response.json();
-            
+
             await SecureStore.setItemAsync("userToken", data.token);
+            await SecureStore.setItemAsync("userId", data.userId);
 
             navigation.navigate("Forums");
 
@@ -62,6 +77,8 @@ export default function LoginScreen({ navigation }) {
                         Log in to catch up with your communities and keep the conversation going.
                     </Text>
 
+                    <ErrorMessage errorMessage={errorMessage} color={errorMessageColor}/>
+
                     {/* Form Fields */}
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Email</Text>
@@ -80,7 +97,7 @@ export default function LoginScreen({ navigation }) {
                         <Text style={styles.label}>Password</Text>
                         <TextInput 
                             style={styles.input}
-                            placeholder="At least 6 characters"
+                            placeholder="At least 8 characters"
                             placeholderTextColor="#9ca3af"
                             value={password}
                             onChangeText={setPassword}

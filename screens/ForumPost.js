@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { StyleSheet, Text, View, ScrollView, TextInput, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
-import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
 import * as SecureStore from "expo-secure-store";
 
 export default function ForumPost({ route, navigation }) {
@@ -99,7 +99,7 @@ export default function ForumPost({ route, navigation }) {
                         <View style={styles.cardFooter}>
                             <View style={styles.interactionGroup}>
                                 <View style={styles.actionButton}>
-                                    <MaterialCommunityIcons name="cards-diamond-outline" size={16} color="#4b5563" />
+                                    <AntDesign name="heart" color="#f87171" size={16}/>
                                     <Text style={styles.actionText}>{postItem.likeCount}</Text>
                                 </View>
                                 <View style={styles.actionButton}>
