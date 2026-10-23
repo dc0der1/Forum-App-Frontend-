@@ -11,6 +11,7 @@ import RegisterScreen from "../screens/RegisterScreen.js";
 import ForumPost from "../screens/ForumPost.js";
 import { Pressable } from "react-native";
 import CreatePostModal from "../screens/CreatePostModal.js";
+import EditPost from "../screens/EditPost.js";
 
 export default function RootNavigator() {
 
@@ -69,6 +70,14 @@ export default function RootNavigator() {
                     options={{
                         presentation: 'modal', 
                         headerShown: true
+                    }}
+                />
+
+                <Stack.Screen 
+                    name="EditPost" 
+                    component={EditPost} 
+                    options={{
+                        title: "Edit Post"
                     }}
                 />
             </Stack.Navigator>

@@ -3,6 +3,7 @@ import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvo
 import { Feather } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
 import { Dropdown } from "react-native-element-dropdown";
+import ErrorMessage from "../components/ErrorMessage";
 
 const categoryData = [
     { label: "Discussion", value: "Discussion" },
@@ -17,6 +18,8 @@ export default function CreatePostModal({ navigation }) {
     const [content, setContent] = useState("");
     const [category, setCategory] = useState("Discussion"); // Default category
     const [isFocus, setIsFocus] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [errorMessageColor, setErrorMessageColor] = useState("red");
 
     async function handleCreatePost() {
         try {
@@ -35,10 +38,19 @@ export default function CreatePostModal({ navigation }) {
                 })
             });
 
-            if (!response.ok) throw new Error("Failed to create post");
+            if (!title || title.trim() === "" || 
+                !content || content.trim() === "" || 
+                !category || category.trim() === ""
+            ) {
+                setErrorMessage("Make sure your inputs aren't empty.");
+                return;
+            }
+
+            if (!response.ok) setErrorMessage("Something went wrong.");
 
             console.log("Forum posted successfully!");
-            navigation.goBack(); // Close the modal and return to feed
+            setErrorMessage("Post successfully created!");
+            setErrorMessageColor("green");
         } catch (error) {
             console.log(error);
         }
@@ -60,6 +72,8 @@ export default function CreatePostModal({ navigation }) {
                         <Text style={styles.postSubmitButtonText}>Post</Text>
                     </Pressable>
                 </View>
+
+                <ErrorMessage errorMessage={errorMessage} color={errorMessageColor}/>
 
                 {/* Form Fields */}
                 <View style={styles.formBody}>

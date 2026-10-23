@@ -1,17 +1,28 @@
 import { FlatList, Pressable, StyleSheet, Text, View, SafeAreaView } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import { useCallback, useEffect, useState } from "react";
-import { AntDesign, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import { useCallback, useState } from "react";
+import { AntDesign, MaterialCommunityIcons, Feather, EvilIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { Dropdown } from "react-native-element-dropdown";
+
+const categoryData = [
+    { label: "Discussion", value: "Discussion" },
+    { label: "Design", value: "Design" },
+    { label: "Questions", value: "Questions" },
+    { label: "Show & Tell", value: "Show & Tell" },
+    { label: "General", value: "General" },
+];
 
 export default function Forums({ navigation }) {
 
     const [posts, setPosts] = useState([]);
-    const [activeTab, setActiveTab] = useState("Latest");
+    const [allPosts, setAllPosts] = useState([]);
+    const [activeTab, setActiveTab] = useState("");
     const [page, setPage] = useState(0);
     const [currentUserId, setCurrentUserId] = useState("");
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const [category, setCategory] = useState("Topics");
 
 useFocusEffect(
         useCallback(() => {
@@ -41,10 +52,6 @@ useFocusEffect(
                 }
             });
 
-            if (!response.ok) {
-                throw new Error("Something went wrong while loading the posts!");
-            }
-
             const data = await response.json();
             
             if (data.length === 0) {
@@ -57,7 +64,9 @@ useFocusEffect(
                 setPosts(prevPosts => {
                     const existingIds = new Set(prevPosts.map(p => p.postId));
                     const uniqueNewPosts = data.filter(p => !existingIds.has(p.postId));
-                    return [...prevPosts, ...uniqueNewPosts];
+                    const combined = [...prevPosts, ...uniqueNewPosts];
+                    setAllPosts(combined);
+                    return combined;
                 });
             }
 
@@ -179,10 +188,50 @@ useFocusEffect(
                             <Feather name="trash-2" size={16} color={"#ef4444"}/>
                         </Pressable>
                     )}
+
+                    {isOwner && (
+                        <Pressable 
+                            style={styles.deleteButton}
+                            onPress={() => navigation.navigate("EditPost", {postItem: post})}
+                        >
+                            <EvilIcons name="pencil" size={16} color="orange"/>
+                        </Pressable>
+                    )}
                 </View>
             </View>
         );
     };
+
+    function filter(tab, selectedCategory) {
+
+        const targetCategory = selectedCategory !== undefined ? selectedCategory : category;
+
+        if (tab === "Popular") {
+            const sorted = [...allPosts].sort((a, b) => {
+                const scoreA = (a.likeCount || 0) + (a.replyCount || 0); 
+                const scoreB = (b.likeCount || 0) + (b.replyCount || 0);
+                return scoreB - scoreA;
+            });
+            setPosts(sorted);
+            return;
+        } 
+        
+        // This sort is based of the day differences and not hour, seconds or milli seconds
+        if (tab === "Latest" || activeTab === "Latest") {
+            const latest = [...allPosts].sort((a, b) => {
+                const dateA = new Date(a.postedAt || 0).getTime();
+                const dateB = new Date(b.postedAt || 0).getTime();
+                return dateB - dateA;
+            });
+            setPosts(latest);
+            return;
+        }
+
+        if (tab === "Topics") {
+            const filtered = allPosts.filter((post) => post.postCategory === targetCategory);
+            setPosts(filtered);
+        }
+    }
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -194,6 +243,13 @@ useFocusEffect(
                     showsVerticalScrollIndicator={false}
                     onEndReached={handleLoadMore}
                     onEndReachedThreshold={0.5}
+                    ListEmptyComponent={
+                        !loading && (
+                            <View style={styles.emptyTextContainer}>
+                                <Text style={styles.emptyText}>No forums are posted!{"\n"}Be the first to post!</Text>
+                            </View>
+                        )
+                    }
                     ListHeaderComponent={
                         <View style={styles.headerContainer}>
                             <Text style={styles.subtitle}>YOUR COMMUNITY FEED</Text>
@@ -201,17 +257,36 @@ useFocusEffect(
 
                             {/* Filter Tabs */}
                             <View style={styles.tabRow}>
-                                {["Latest", "Popular", "Topics"].map((tab) => (
+                                {["Latest", "Popular"].map((tab) => (
                                     <Pressable 
                                         key={tab} 
                                         style={[styles.tab, activeTab === tab && styles.activeTab]}
-                                        onPress={() => setActiveTab(tab)}
+                                        onPress={() => {setActiveTab(tab); filter(tab); setCategory("Topics")}}
                                     >
                                         <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
                                             {tab}
                                         </Text>
                                     </Pressable>
                                 ))}
+
+                                <Dropdown
+                                    style={[styles.dropdown]}
+                                    containerStyle={styles.dropdownContainer}
+                                    placeholderStyle={styles.placeholderStyle}
+                                    selectedTextStyle={styles.selectedTextStyle}
+                                    iconStyle={styles.iconStyle}
+                                    itemTextStyle={styles.iconStyle}
+                                    data={categoryData}
+                                    labelField="label"
+                                    valueField="value" 
+                                    value={category}
+                                    placeholder={category}
+                                    onFocus={() => setActiveTab("Topics")}
+                                    onChange={item => {
+                                        setCategory(item.value);
+                                        filter(activeTab, item.value);
+                                    }}
+                                />
                             </View>
                         </View>
                     }
@@ -397,5 +472,55 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontWeight: "bold",
         fontSize: 15,
-    }
+    }, 
+    emptyTextContainer: {
+        flex: 1, 
+        justifyContent: "center", 
+        alignItems: "center"
+    }, 
+    emptyText: {
+        fontSize: 24, 
+        color: "gray", 
+        fontWeight: "bold"
+    }, 
+    dropdown: {
+        flex: 1, // Let it fill remaining space nicely alongside tabs
+        height: 38, // Match the height of your filter tabs
+        backgroundColor: "#fff",
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: "#e5e7eb",
+        paddingHorizontal: 14,
+    },
+    placeholderStyle: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#4b5563",
+    },
+    selectedTextStyle: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#4b5563",
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    dropdownContainer: {
+        backgroundColor: "#fff",
+        borderRadius: 16,
+        borderColor: "#e5e7eb",
+        borderWidth: 1,
+        marginTop: 6,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    itemTextStyle: {
+        fontSize: 13,
+        color: "#4b5563",
+        fontWeight: "500",
+    },
 });
