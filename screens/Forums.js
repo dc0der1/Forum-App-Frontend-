@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View, SafeAreaView, ActivityIndicator } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useState } from "react";
 import { AntDesign, MaterialCommunityIcons, Feather, EvilIcons } from "@expo/vector-icons";
@@ -24,19 +24,19 @@ export default function Forums({ navigation }) {
     const [hasMore, setHasMore] = useState(true);
     const [category, setCategory] = useState("Topics");
 
-useFocusEffect(
-        useCallback(() => {
-            async function initializeScreen() {
-                const username = await SecureStore.getItemAsync("userId");
-                setCurrentUserId(username || "");
+    useFocusEffect(
+            useCallback(() => {
+                async function initializeScreen() {
+                    const username = await SecureStore.getItemAsync("userId");
+                    setCurrentUserId(username || "");
 
-                setPage(0);
-                setHasMore(true);
-                getAllPosts(0, true);
-            }
-            initializeScreen();
-        }, [])   
-);
+                    setPage(0);
+                    setHasMore(true);
+                    getAllPosts(0, true);
+                }
+                initializeScreen();
+            }, [])   
+    );
     
     async function getAllPosts(pageNumber = 0, shouldReset = false) {
         if (loading || (!hasMore && !shouldReset)) return;
@@ -230,6 +230,7 @@ useFocusEffect(
         if (tab === "Topics") {
             const filtered = allPosts.filter((post) => post.postCategory === targetCategory);
             setPosts(filtered);
+            return;
         }
     }
 
