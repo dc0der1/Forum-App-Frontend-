@@ -6,8 +6,8 @@ import ErrorMessage from "../components/ErrorMessage";
 
 export default function LoginScreen({ navigation }) {
     
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("robin@gmail.com");
+    const [password, setPassword] = useState("Password123@");
     const [errorMessage, setErrorMessage] = useState("");
     const [errorMessageColor, setErrorMessageColor] = useState("red");
 
@@ -86,7 +86,7 @@ export default function LoginScreen({ navigation }) {
                             style={styles.input}
                             placeholder="you@example.com"
                             placeholderTextColor="#9ca3af"
-                            value={email}
+                            value="robin@gmail.com"
                             onChangeText={setEmail}
                             autoCapitalize="none"
                             keyboardType="email-address"
@@ -99,7 +99,7 @@ export default function LoginScreen({ navigation }) {
                             style={styles.input}
                             placeholder="At least 8 characters"
                             placeholderTextColor="#9ca3af"
-                            value={password}
+                            value="Password123@"
                             onChangeText={setPassword}
                             secureTextEntry
                         />

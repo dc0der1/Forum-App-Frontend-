@@ -71,6 +71,7 @@ export default function Forums({ navigation }) {
             }
 
             setLoading(false);
+            setAllPosts(data);
             return data;
         } catch (error) {
             setLoading(false);
