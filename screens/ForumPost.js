@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, TextInput, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
+import { StyleSheet, Text, View, ScrollView, TextInput, Pressable, SafeAreaView, KeyboardAvoidingView, Platform, Share } from "react-native";
 import { MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
 import * as SecureStore from "expo-secure-store";
 
@@ -66,6 +66,19 @@ export default function ForumPost({ route, navigation }) {
         }
     }
 
+    const onShare = async () => {
+        try {
+            const result = await Share.share({
+                title: `${postItem.userResponse.username} made a new post!`, 
+                message: `Make sure to check it out! \nShared by ${postItem.userResponse.username}`, 
+                url: "https://sponour.online" // Temporary link
+            });
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <KeyboardAvoidingView 
@@ -110,7 +123,7 @@ export default function ForumPost({ route, navigation }) {
 
                             <View style={styles.interactionGroup}>
                                 <Feather name="bookmark" size={18} color="#4b5563" style={{ marginRight: 16 }} />
-                                <Feather name="send" size={18} color="#4b5563" />
+                                <Feather name="send" size={18} color="#4b5563" onPress={onShare}/> {/* Share button */}
                             </View>
                         </View>
                     </View>
