@@ -76,12 +76,17 @@ export default function Forums({ navigation }) {
     }
 
     const handleLoadMore = () => {
-        const isGlobalFeed = activeTab === "All" || activeTab === "Latest" || activeTab === "Popular";
-        const isTopicSelected = category && category !== "Topics";
+        if (loading || !hasMore) return;
 
-        if (isGlobalFeed && !isTopicSelected && !loading && hasMore) {
-            const nextPage = page + 1;
-            setPage(nextPage);
+        const nextPage = page + 1;
+        setPage(nextPage);
+
+        // If we are viewing a specific topic, paginate the category endpoint
+        if (activeTab === "Topics" && category && category !== "Topics") {
+            findPostsByCategory(category, nextPage, false);
+        } 
+        // Otherwise, if we are on the main "All" feed, paginate the global endpoint
+        if (activeTab === "All") {
             getAllPosts(nextPage, false);
         }
     };
@@ -133,11 +138,11 @@ export default function Forums({ navigation }) {
         }
     }
 
-    async function findPostsByCategory(targetCategory) {
+    async function findPostsByCategory(targetCategory, pageNumber = 0, shouldReset = false) {
         try {
             const token = await SecureStore.getItemAsync("userToken");
 
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/category?category=${targetCategory}`, {
+            const response = await fetch(`http://10.0.2.2:8080/api/forum/category?category=${targetCategory}&page=${pageNumber}`, {
                 method: "GET", 
                 headers: {
                     "Content-Type": "application/json", 
@@ -147,8 +152,21 @@ export default function Forums({ navigation }) {
 
             const data = await response.json();
 
-            console.log(data);
-            setPosts(data);
+            if (data.length === 0) {
+                setHasMore(false);
+            }
+
+            if (shouldReset) {
+                setPosts(data);
+            } else {
+                setPosts(prevPosts => {
+                    const existingIds = new Set(prevPosts.map(p => p.postId));
+                    const uniqueNewPosts = data.filter(p => !existingIds.has(p.postId));
+                    return [...prevPosts, ...uniqueNewPosts];
+                });
+            }
+
+            setLoading(false);
         } catch (error) {
             console.error(error);
         }
@@ -341,7 +359,11 @@ export default function Forums({ navigation }) {
                                     onChange={item => {
                                         setCategory(item.value);
                                         setActiveTab("Topics");
-                                        filter("Topics", item.value);
+                                        
+                                        // Reset pagination tracking for the new topic
+                                        setPage(0);
+                                        setHasMore(true);
+                                        findPostsByCategory(item.value, 0, true);
                                     }}
                                 />
                             </View>
