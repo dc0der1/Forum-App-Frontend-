@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View, SafeAreaView, ActivityIndicator } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useState } from "react";
 import { AntDesign, MaterialCommunityIcons, Feather, EvilIcons } from "@expo/vector-icons";
@@ -40,6 +40,7 @@ export default function Forums({ navigation }) {
     async function getAllPosts(pageNumber = 0, shouldReset = false) {
         if (loading || (!hasMore && !shouldReset)) return;
 
+        setLoading(true);
         try {
             const token = await SecureStore.getItemAsync("userToken");
 
@@ -147,6 +148,7 @@ export default function Forums({ navigation }) {
     }
 
     async function findPostsByCategory(targetCategory, pageNumber = 0, shouldReset = false) {
+        setLoading(true);
         try {
             const token = await SecureStore.getItemAsync("userToken");
 
@@ -181,6 +183,7 @@ export default function Forums({ navigation }) {
     }
 
     async function findMostPopularPosts(pageNumber = 0, shouldReset = false) {
+        setLoading(true);
         try {
             const token = await SecureStore.getItemAsync("userToken");
 
@@ -215,6 +218,7 @@ export default function Forums({ navigation }) {
     }
 
     async function findLatestPosts(pageNumber = 0, shouldReset = false) {
+        setLoading(true);
         try {
             const token = await SecureStore.getItemAsync("userToken");
 
@@ -327,9 +331,21 @@ export default function Forums({ navigation }) {
                     showsVerticalScrollIndicator={false}
                     onEndReached={handleLoadMore}
                     onEndReachedThreshold={0.5}
+                    contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
+                    ListFooterComponent={
+                        loading && posts.length > 0 ? (
+                            <View style={styles.footerLoader}>
+                                <ActivityIndicator size="small" color="#f87171" />
+                            </View>
+                        ) : null
+                    }
                     ListEmptyComponent={
-                        !loading && (
-                            <View style={styles.emptyTextContainer}>
+                        loading && posts.length === 0 ? (
+                            <View>
+                                <ActivityIndicator size="large" color="#f87171" />
+                            </View>
+                        ) : (
+                            <View>
                                 <Text style={styles.emptyText}>No forums are posted!{"\n"}Be the first to post!</Text>
                             </View>
                         )
@@ -365,7 +381,9 @@ export default function Forums({ navigation }) {
                                         </Text>
                                     </Pressable>
                                 ))}
+                            </View>
 
+                            <View style={styles.dropdownRow}>
                                 <Dropdown
                                     style={[styles.dropdown]}
                                     containerStyle={styles.dropdownContainer}
@@ -430,7 +448,8 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     tabRow: {
-        flexDirection: "row",
+        flexDirection: "row", 
+        alignItems: "center", 
         marginBottom: 12,
     },
     tab: {
@@ -547,7 +566,10 @@ const styles = StyleSheet.create({
         padding: 6, 
         backgroundColor: "#ffeeef", 
         borderRadius: 10 
-    },
+    }, 
+    dropdownRow: {
+        marginBottom: 12, 
+    }, 
     buttonCountText: {
         fontSize: 12,
         fontWeight: "600",
@@ -592,7 +614,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 1,
         borderColor: "#e5e7eb",
-        paddingHorizontal: 14,
+        paddingHorizontal: 14, 
     },
     placeholderStyle: {
         fontSize: 13,
@@ -624,5 +646,10 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: "#4b5563",
         fontWeight: "500",
+    }, 
+    footerLoader: {
+        paddingVertical: 20,
+        alignItems: "center",
+        justifyContent: "center",
     },
 });

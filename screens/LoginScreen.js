@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, StyleSheet, TextInput, Pressable, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useState } from "react";
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import * as SecureStore from "expo-secure-store";
@@ -56,72 +56,77 @@ export default function LoginScreen({ navigation }) {
                 behavior={Platform.OS === "ios" ? "padding" : "height"} 
                 style={styles.container}
             >
-                {/* Brand Header */}
-                <View style={styles.brandHeader}>
-                    <View style={styles.logoBadge}>
-                        <Ionicons name="person" size={18} color="#fff" />
-                    </View>
-                    <Text style={styles.brandTitle}>Commonly</Text>
-                </View>
-
-                {/* Main Content */}
-                <View style={styles.content}>
-                    {/* Icon Card */}
-                    <View style={styles.iconBox}>
-                        <MaterialCommunityIcons name="chat-processing-outline" size={28} color="#fff" />
+                <ScrollView 
+                    contentContainerStyle={styles.scrollContainer}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Brand Header */}
+                    <View style={styles.brandHeader}>
+                        <View style={styles.logoBadge}>
+                            <Ionicons name="person" size={18} color="#fff" />
+                        </View>
+                        <Text style={styles.brandTitle}>Commonly</Text>
                     </View>
 
-                    <Text style={styles.welcomeSubtitle}>WELCOME BACK</Text>
-                    <Text style={styles.title}>Good to see you.</Text>
-                    <Text style={styles.description}>
-                        Log in to catch up with your communities and keep the conversation going.
-                    </Text>
+                    {/* Main Content */}
+                    <View style={styles.content}>
+                        {/* Icon Card */}
+                        <View style={styles.iconBox}>
+                            <MaterialCommunityIcons name="chat-processing-outline" size={28} color="#fff" />
+                        </View>
 
-                    <ErrorMessage errorMessage={errorMessage} color={errorMessageColor}/>
+                        <Text style={styles.welcomeSubtitle}>WELCOME BACK</Text>
+                        <Text style={styles.title}>Good to see you.</Text>
+                        <Text style={styles.description}>
+                            Log in to catch up with your communities and keep the conversation going.
+                        </Text>
 
-                    {/* Form Fields */}
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Email</Text>
-                        <TextInput 
-                            style={styles.input}
-                            placeholder="you@example.com"
-                            placeholderTextColor="#9ca3af"
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                        />
-                    </View>
+                        <ErrorMessage errorMessage={errorMessage} color={errorMessageColor}/>
 
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Password</Text>
-                        <TextInput 
-                            style={styles.input}
-                            placeholder="At least 8 characters"
-                            placeholderTextColor="#9ca3af"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                        />
-                        <Pressable style={styles.forgotContainer}>
-                            <Text style={styles.forgotText}>Forgot password?</Text>
+                        {/* Form Fields */}
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Email</Text>
+                            <TextInput 
+                                style={styles.input}
+                                placeholder="you@example.com"
+                                placeholderTextColor="#9ca3af"
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                            />
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Password</Text>
+                            <TextInput 
+                                style={styles.input}
+                                placeholder="At least 8 characters"
+                                placeholderTextColor="#9ca3af"
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry
+                            />
+                            <Pressable style={styles.forgotContainer}>
+                                <Text style={styles.forgotText}>Forgot password?</Text>
+                            </Pressable>
+                        </View>
+
+                        {/* Login Button */}
+                        <Pressable style={styles.loginButton} onPress={handleLogin}>
+                            <Text style={styles.loginButtonText}>Log in</Text>
+                            <Feather name="chevron-right" size={20} color="#fff" style={styles.arrowIcon} />
                         </Pressable>
                     </View>
 
-                    {/* Login Button */}
-                    <Pressable style={styles.loginButton} onPress={handleLogin}>
-                        <Text style={styles.loginButtonText}>Log in</Text>
-                        <Feather name="chevron-right" size={20} color="#fff" style={styles.arrowIcon} />
-                    </Pressable>
-                </View>
-
-                {/* Footer Registration Link */}
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>New around here? </Text>
-                    <Pressable onPress={() => navigation.navigate("Register")}>
-                        <Text style={styles.createAccountText}>Create an account</Text>
-                    </Pressable>
-                </View>
+                    {/* Footer Registration Link */}
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>New around here? </Text>
+                        <Pressable onPress={() => navigation.navigate("Register")}>
+                            <Text style={styles.createAccountText}>Create an account</Text>
+                        </Pressable>
+                    </View>
+                </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -137,7 +142,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         justifyContent: "space-between",
         paddingVertical: 20,
-    },
+    }, 
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: "center", // Centers content vertically if screen has extra space
+        padding: 24,
+    }, 
     brandHeader: {
         flexDirection: "row",
         alignItems: "center",

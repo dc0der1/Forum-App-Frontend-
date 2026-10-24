@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
+import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useState } from "react";
 import ErrorMessage from "../components/ErrorMessage";
@@ -98,80 +98,85 @@ return (
                 behavior={Platform.OS === "ios" ? "padding" : "height"} 
                 style={styles.container}
             >
+                <ScrollView
+                    contentContainerStyle={styles.scrollContainer} 
+                    showsVerticalScrollIndicator={false}
+                >
                 {/* Brand Header */}
-                <View style={styles.brandHeader}>
-                    <View style={styles.logoBadge}>
-                        <Ionicons name="person" size={18} color="#fff" />
-                    </View>
-                    <Text style={styles.brandTitle}>Commonly</Text>
-                </View>
-
-                {/* Main Content */}
-                <View style={styles.content}>
-                    {/* Plus Icon Card */}
-                    <View style={styles.iconBox}>
-                        <Feather name="plus" size={28} color="#fff" />
+                    <View style={styles.brandHeader}>
+                        <View style={styles.logoBadge}>
+                            <Ionicons name="person" size={18} color="#fff" />
+                        </View>
+                        <Text style={styles.brandTitle}>Commonly</Text>
                     </View>
 
-                    <Text style={styles.welcomeSubtitle}>JOIN THE CONVERSATION</Text>
-                    <Text style={styles.title}>Find your people.</Text>
-                    <Text style={styles.description}>
-                        Create an account and join thoughtful conversations about the things you care about.
-                    </Text>
+                    {/* Main Content */}
+                    <View style={styles.content}>
+                        {/* Plus Icon Card */}
+                        <View style={styles.iconBox}>
+                            <Feather name="plus" size={28} color="#fff" />
+                        </View>
 
-                    <ErrorMessage errorMessage={errorMessage} color={errorMessageColor}/>
+                        <Text style={styles.welcomeSubtitle}>JOIN THE CONVERSATION</Text>
+                        <Text style={styles.title}>Find your people.</Text>
+                        <Text style={styles.description}>
+                            Create an account and join thoughtful conversations about the things you care about.
+                        </Text>
 
-                    {/* Form Fields */}
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Display name</Text>
-                        <TextInput 
-                            style={styles.input}
-                            placeholder="How should we call you?"
-                            placeholderTextColor="#9ca3af"
-                            value={username}
-                            onChangeText={setUsername}
-                        />
+                        <ErrorMessage errorMessage={errorMessage} color={errorMessageColor}/>
+
+                        {/* Form Fields */}
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Display name</Text>
+                            <TextInput 
+                                style={styles.input}
+                                placeholder="How should we call you?"
+                                placeholderTextColor="#9ca3af"
+                                value={username}
+                                onChangeText={setUsername}
+                            />
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Email</Text>
+                            <TextInput 
+                                style={styles.input}
+                                placeholder="you@example.com"
+                                placeholderTextColor="#9ca3af"
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                            />
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Password</Text>
+                            <TextInput 
+                                style={styles.input}
+                                placeholder="At least 6 characters"
+                                placeholderTextColor="#9ca3af"
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry
+                            />
+                        </View>
+
+                        {/* Register Button */}
+                        <Pressable style={styles.registerButton} onPress={handleAccountCreation}>
+                            <Text style={styles.registerButtonText}>Create account</Text>
+                            <Feather name="chevron-right" size={20} color="#fff" style={styles.arrowIcon} />
+                        </Pressable>
                     </View>
 
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Email</Text>
-                        <TextInput 
-                            style={styles.input}
-                            placeholder="you@example.com"
-                            placeholderTextColor="#9ca3af"
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                        />
+                    {/* Footer Login Link */}
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>Already a member? </Text>
+                        <Pressable onPress={() => navigation.navigate("Login")}>
+                            <Text style={styles.loginLinkText}>Log in</Text>
+                        </Pressable>
                     </View>
-
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Password</Text>
-                        <TextInput 
-                            style={styles.input}
-                            placeholder="At least 6 characters"
-                            placeholderTextColor="#9ca3af"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                        />
-                    </View>
-
-                    {/* Register Button */}
-                    <Pressable style={styles.registerButton} onPress={handleAccountCreation}>
-                        <Text style={styles.registerButtonText}>Create account</Text>
-                        <Feather name="chevron-right" size={20} color="#fff" style={styles.arrowIcon} />
-                    </Pressable>
-                </View>
-
-                {/* Footer Login Link */}
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>Already a member? </Text>
-                    <Pressable onPress={() => navigation.navigate("Login")}>
-                        <Text style={styles.loginLinkText}>Log in</Text>
-                    </Pressable>
-                </View>
+                </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -188,6 +193,11 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         paddingVertical: 20,
     },
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: "center", // Centers content vertically if screen has extra space
+        padding: 24,
+    }, 
     brandHeader: {
         flexDirection: "row",
         alignItems: "center",
