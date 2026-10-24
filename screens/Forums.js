@@ -89,6 +89,14 @@ export default function Forums({ navigation }) {
         if (activeTab === "All") {
             getAllPosts(nextPage, false);
         }
+
+        if (activeTab === "Latest") {
+            findLatestPosts(nextPage, false);
+        }
+
+        if (activeTab === "Popular") {
+            findMostPopularPosts(nextPage, false);
+        }
     };
 
     async function likeAPost({ postId }) {
@@ -172,11 +180,11 @@ export default function Forums({ navigation }) {
         }
     }
 
-    async function findMostPopularPosts() {
+    async function findMostPopularPosts(pageNumber = 0, shouldReset = false) {
         try {
             const token = await SecureStore.getItemAsync("userToken");
 
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/popular`, {
+            const response = await fetch(`http://10.0.2.2:8080/api/forum/popular?page=${pageNumber}`, {
                 method: "GET", 
                 headers: {
                     "Content-Type": "application/json", 
@@ -186,17 +194,31 @@ export default function Forums({ navigation }) {
 
             const data = await response.json();
 
-            setPosts(data);
+            if (data.length === 0) {
+                setHasMore(false);
+            }
+
+            if (shouldReset) {
+                setPosts(data);
+            } else {
+                setPosts(prevPosts => {
+                    const existingIds = new Set(prevPosts.map(p => p.postId));
+                    const uniqueNewPosts = data.filter(p => !existingIds.has(p.postId));
+                    return [...prevPosts, ...uniqueNewPosts];
+                });
+            }
+
+            setLoading(false);
         } catch (error) {
             console.log(error);
         }
     }
 
-    async function findLatestPosts() {
+    async function findLatestPosts(pageNumber = 0, shouldReset = false) {
         try {
             const token = await SecureStore.getItemAsync("userToken");
 
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/latest`, {
+            const response = await fetch(`http://10.0.2.2:8080/api/forum/latest?page=${pageNumber}`, {
                 method: "GET", 
                 headers: {
                     "Content-Type": "application/json", 
@@ -206,7 +228,21 @@ export default function Forums({ navigation }) {
 
             const data = await response.json();
 
-            setPosts(data);
+            if (data.length === 0) {
+                setHasMore(false);
+            }
+
+            if (shouldReset) {
+                setPosts(data);
+            } else {
+                setPosts(prevPosts => {
+                    const existingIds = new Set(prevPosts.map(p => p.postId));
+                    const uniqueNewPosts = data.filter(p => !existingIds.has(p.postId));
+                    return [...prevPosts, ...uniqueNewPosts];
+                });
+            }
+
+            setLoading(false);
         } catch (error) {
             console.log(error);
         }
@@ -281,32 +317,6 @@ export default function Forums({ navigation }) {
         );
     };
 
-    function filter(tab, selectedCategory) {
-
-        const targetCategory = selectedCategory !== undefined ? selectedCategory : category;
-
-        if (tab === "All") {
-            getAllPosts();
-            return;
-        }
-
-        if (tab === "Popular") {
-            findMostPopularPosts();
-            return;
-        } 
-        
-        // This sort is based of the day differences and not hour, seconds or milli seconds
-        if (tab === "Latest" || activeTab === "Latest") {
-            findLatestPosts();
-            return;
-        }
-
-        if (tab === "Topics") {
-            findPostsByCategory(targetCategory);
-            return;
-        }
-    }
-
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
@@ -335,7 +345,20 @@ export default function Forums({ navigation }) {
                                     <Pressable 
                                         key={tab} 
                                         style={[styles.tab, activeTab === tab && styles.activeTab]}
-                                        onPress={() => {setActiveTab(tab); filter(tab); setCategory("Topics")}}
+                                        onPress={() => {
+                                            setActiveTab(tab); 
+                                            setPage(0);
+                                            setHasMore(true); 
+                                            setCategory("Topics")
+
+                                            if (tab === "All") {
+                                                getAllPosts(0, true);
+                                            } else if (tab === "Latest") {
+                                                findLatestPosts(0, true);
+                                            } else if (tab === "Popular") {
+                                                findMostPopularPosts(0, true);
+                                            }
+                                        }}
                                     >
                                         <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
                                             {tab}
