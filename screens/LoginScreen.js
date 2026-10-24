@@ -6,8 +6,8 @@ import ErrorMessage from "../components/ErrorMessage";
 
 export default function LoginScreen({ navigation }) {
     
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("robin@gmail.com");
+    const [password, setPassword] = useState("Password123@");
     const [errorMessage, setErrorMessage] = useState("");
     const [errorMessageColor, setErrorMessageColor] = useState("red");
 

@@ -123,7 +123,7 @@ export default function ForumPost({ route, navigation }) {
 
                             <View style={styles.interactionGroup}>
                                 <Feather name="bookmark" size={18} color="#4b5563" style={{ marginRight: 16 }} />
-                                <Feather name="send" size={18} color="#4b5563" onPress={onShare}/> {/* Share button */}
+                                <Feather name="send" size={18} color="#4b5563" onPress={onShare}/>
                             </View>
                         </View>
                     </View>

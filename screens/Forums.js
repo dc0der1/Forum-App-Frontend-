@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, Text, View, SafeAreaView, ActivityIndicator } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View, SafeAreaView } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useState } from "react";
 import { AntDesign, MaterialCommunityIcons, Feather, EvilIcons } from "@expo/vector-icons";
@@ -16,8 +16,7 @@ const categoryData = [
 export default function Forums({ navigation }) {
 
     const [posts, setPosts] = useState([]);
-    const [allPosts, setAllPosts] = useState([]);
-    const [activeTab, setActiveTab] = useState("");
+    const [activeTab, setActiveTab] = useState("All");
     const [page, setPage] = useState(0);
     const [currentUserId, setCurrentUserId] = useState("");
     const [loading, setLoading] = useState(false);
@@ -64,14 +63,11 @@ export default function Forums({ navigation }) {
                 setPosts(prevPosts => {
                     const existingIds = new Set(prevPosts.map(p => p.postId));
                     const uniqueNewPosts = data.filter(p => !existingIds.has(p.postId));
-                    const combined = [...prevPosts, ...uniqueNewPosts];
-                    setAllPosts(combined);
-                    return combined;
+                    return [...prevPosts, ...uniqueNewPosts];
                 });
             }
 
             setLoading(false);
-            setAllPosts(data);
             return data;
         } catch (error) {
             setLoading(false);
@@ -80,7 +76,10 @@ export default function Forums({ navigation }) {
     }
 
     const handleLoadMore = () => {
-        if (!loading && hasMore) {
+        const isGlobalFeed = activeTab === "All" || activeTab === "Latest" || activeTab === "Popular";
+        const isTopicSelected = category && category !== "Topics";
+
+        if (isGlobalFeed && !isTopicSelected && !loading && hasMore) {
             const nextPage = page + 1;
             setPage(nextPage);
             getAllPosts(nextPage, false);
@@ -131,6 +130,67 @@ export default function Forums({ navigation }) {
             getAllPosts(0, true);
         } catch (error) {
             console.error(error);
+        }
+    }
+
+    async function findPostsByCategory(targetCategory) {
+        try {
+            const token = await SecureStore.getItemAsync("userToken");
+
+            const response = await fetch(`http://10.0.2.2:8080/api/forum/category?category=${targetCategory}`, {
+                method: "GET", 
+                headers: {
+                    "Content-Type": "application/json", 
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            console.log(data);
+            setPosts(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function findMostPopularPosts() {
+        try {
+            const token = await SecureStore.getItemAsync("userToken");
+
+            const response = await fetch(`http://10.0.2.2:8080/api/forum/popular`, {
+                method: "GET", 
+                headers: {
+                    "Content-Type": "application/json", 
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            setPosts(data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async function findLatestPosts() {
+        try {
+            const token = await SecureStore.getItemAsync("userToken");
+
+            const response = await fetch(`http://10.0.2.2:8080/api/forum/latest`, {
+                method: "GET", 
+                headers: {
+                    "Content-Type": "application/json", 
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            setPosts(data);
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -207,30 +267,24 @@ export default function Forums({ navigation }) {
 
         const targetCategory = selectedCategory !== undefined ? selectedCategory : category;
 
+        if (tab === "All") {
+            getAllPosts();
+            return;
+        }
+
         if (tab === "Popular") {
-            const sorted = [...allPosts].sort((a, b) => {
-                const scoreA = (a.likeCount || 0) + (a.replyCount || 0); 
-                const scoreB = (b.likeCount || 0) + (b.replyCount || 0);
-                return scoreB - scoreA;
-            });
-            setPosts(sorted);
+            findMostPopularPosts();
             return;
         } 
         
         // This sort is based of the day differences and not hour, seconds or milli seconds
         if (tab === "Latest" || activeTab === "Latest") {
-            const latest = [...allPosts].sort((a, b) => {
-                const dateA = new Date(a.postedAt || 0).getTime();
-                const dateB = new Date(b.postedAt || 0).getTime();
-                return dateB - dateA;
-            });
-            setPosts(latest);
+            findLatestPosts();
             return;
         }
 
         if (tab === "Topics") {
-            const filtered = allPosts.filter((post) => post.postCategory === targetCategory);
-            setPosts(filtered);
+            findPostsByCategory(targetCategory);
             return;
         }
     }
@@ -259,7 +313,7 @@ export default function Forums({ navigation }) {
 
                             {/* Filter Tabs */}
                             <View style={styles.tabRow}>
-                                {["Latest", "Popular"].map((tab) => (
+                                {["All", "Latest", "Popular"].map((tab) => (
                                     <Pressable 
                                         key={tab} 
                                         style={[styles.tab, activeTab === tab && styles.activeTab]}
@@ -286,7 +340,8 @@ export default function Forums({ navigation }) {
                                     onFocus={() => setActiveTab("Topics")}
                                     onChange={item => {
                                         setCategory(item.value);
-                                        filter(activeTab, item.value);
+                                        setActiveTab("Topics");
+                                        filter("Topics", item.value);
                                     }}
                                 />
                             </View>
