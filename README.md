@@ -45,13 +45,11 @@ Så har jag gjort i alla fall.
     7. \c forumdb
 3. Sen går du till din code editor (Exempelvis Intellij) och gå leta efter resources mapp i mappen så finns det application.properties. Där lägger du din container och databas information. Så kan du sen kopiera och klistra in de här i properties:
 
-# --- DATABASE CONNECTION ---
 spring.datasource.url=jdbc:postgresql://localhost:5432/forumdb
 spring.datasource.username=DINCONTAINERNAMN
 spring.datasource.password=DINPASSWORD
 spring.datasource.driver-class-name=org.postgresql.Driver
 
-# --- JPA / HIBERNATE SETTINGS ---
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
