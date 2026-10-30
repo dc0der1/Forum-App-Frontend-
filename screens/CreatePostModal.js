@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvoidingView, Platform } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
 import { Dropdown } from "react-native-element-dropdown";
 import ErrorMessage from "../components/ErrorMessage";
+import { authenticatedFetch } from "../context/api";
 
 const categoryData = [
     { label: "Discussion", value: "Discussion" },
@@ -23,14 +23,8 @@ export default function CreatePostModal({ navigation }) {
 
     async function handleCreatePost() {
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch("http://10.0.2.2:8080/api/forum/create", {
+            const response = await authenticatedFetch("/api/forum/create", {
                 method: "POST", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
-                }, 
                 body: JSON.stringify({
                     postTitle: title, 
                     postContent: content, 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { StyleSheet, Text, View, ScrollView, TextInput, Pressable, SafeAreaView, KeyboardAvoidingView, Platform, Share } from "react-native";
 import { MaterialCommunityIcons, Feather, AntDesign } from '@expo/vector-icons';
 import * as SecureStore from "expo-secure-store";
+import { authenticatedFetch } from "../context/api";
 
 export default function ForumPost({ route, navigation }) {
     const { postItem } = route.params;
@@ -20,14 +21,8 @@ export default function ForumPost({ route, navigation }) {
         if (!replyText.trim()) return;
 
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/reply?forumPostId=${postItem.postId}`, {
+            const response = await authenticatedFetch(`/api/forum/reply?forumPostId=${postItem.postId}`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
                 body: JSON.stringify({
                     reply: replyText
                 })
@@ -46,18 +41,8 @@ export default function ForumPost({ route, navigation }) {
     }
 
     async function loadReplies() {
-
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/replies?forumPostId=${postItem.postId}`, {
-                method: "GET", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
+            const response = await authenticatedFetch(`/api/forum/replies?forumPostId=${postItem.postId}`);
             const data = await response.json();
             setRepliesList(data.replies);
 

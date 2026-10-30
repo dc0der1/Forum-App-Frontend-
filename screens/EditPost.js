@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
 import ErrorMessage from "../components/ErrorMessage";
+import { authenticatedFetch } from "../context/api";
 
 const categoryData = [
     { label: "Discussion", value: "Discussion" },
@@ -25,14 +26,8 @@ export default function EditPost({ route, navigation }) {
 
     async function updatePost() {
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/update?forumPostId=${postItem.postId}`, {
+            const response = await authenticatedFetch(`/api/forum/update?forumPostId=${postItem.postId}`, {
                 method: "PATCH", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
-                }, 
                 body: JSON.stringify({
                     postTitle: title, 
                     postContent: content, 

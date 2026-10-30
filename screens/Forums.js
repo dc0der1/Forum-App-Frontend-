@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { AntDesign, MaterialCommunityIcons, Feather, EvilIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { Dropdown } from "react-native-element-dropdown";
+import { authenticatedFetch } from "../context/api";
 
 const categoryData = [
     { label: "Discussion", value: "Discussion" },
@@ -42,16 +43,7 @@ export default function Forums({ navigation }) {
 
         setLoading(true);
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/all?page=${pageNumber}`, {
-                method: "GET", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
+            const response = await authenticatedFetch(`/api/forum/all?page=${pageNumber}`);
             const data = await response.json();
             
             if (data.length === 0) {
@@ -102,14 +94,8 @@ export default function Forums({ navigation }) {
 
     async function likeAPost({ postId }) {
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/like?forumPostId=${postId}`, {
+            const response = await authenticatedFetch(`/api/forum/like?forumPostId=${postId}`, {
                 method: "POST", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
-                }
             });
 
             console.log("Successfully liked a post!");
@@ -128,13 +114,8 @@ export default function Forums({ navigation }) {
 
     async function deletePost(postId) {
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/delete?forumPostId=${postId}`, {
-                method: "DELETE", 
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+            const response = await authenticatedFetch(`/api/forum/delete?forumPostId=${postId}`, {
+                method: "DELETE"
             }); 
 
             if (!response.ok) throw new Error("Failed to delete post");
@@ -150,15 +131,7 @@ export default function Forums({ navigation }) {
     async function findPostsByCategory(targetCategory, pageNumber = 0, shouldReset = false) {
         setLoading(true);
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/category?category=${targetCategory}&page=${pageNumber}`, {
-                method: "GET", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
-                }
-            });
+            const response = await authenticatedFetch(`/api/forum/category?category=${targetCategory}&page=${pageNumber}`);
 
             const data = await response.json();
 
@@ -185,15 +158,7 @@ export default function Forums({ navigation }) {
     async function findMostPopularPosts(pageNumber = 0, shouldReset = false) {
         setLoading(true);
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/popular?page=${pageNumber}`, {
-                method: "GET", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
-                }
-            });
+            const response = await authenticatedFetch(`/api/forum/popular?page=${pageNumber}`);
 
             const data = await response.json();
 
@@ -220,16 +185,7 @@ export default function Forums({ navigation }) {
     async function findLatestPosts(pageNumber = 0, shouldReset = false) {
         setLoading(true);
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-
-            const response = await fetch(`http://10.0.2.2:8080/api/forum/latest?page=${pageNumber}`, {
-                method: "GET", 
-                headers: {
-                    "Content-Type": "application/json", 
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
+            const response = await authenticatedFetch(`/api/forum/latest?page=${pageNumber}`);
             const data = await response.json();
 
             if (data.length === 0) {
