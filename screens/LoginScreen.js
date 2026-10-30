@@ -3,11 +3,12 @@ import { useState } from "react";
 import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import * as SecureStore from "expo-secure-store";
 import ErrorMessage from "../components/ErrorMessage";
+import Input from "../components/Input";
 
 export default function LoginScreen({ navigation }) {
     
-    const [email, setEmail] = useState("robin@gmail.com");
-    const [password, setPassword] = useState("Password123@");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [errorMessageColor, setErrorMessageColor] = useState("red");
 
@@ -84,33 +85,29 @@ export default function LoginScreen({ navigation }) {
                         <ErrorMessage errorMessage={errorMessage} color={errorMessageColor}/>
 
                         {/* Form Fields */}
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Email</Text>
-                            <TextInput 
-                                style={styles.input}
-                                placeholder="you@example.com"
-                                placeholderTextColor="#9ca3af"
-                                value={email}
-                                onChangeText={setEmail}
-                                autoCapitalize="none"
-                                keyboardType="email-address"
-                            />
-                        </View>
 
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Password</Text>
-                            <TextInput 
-                                style={styles.input}
-                                placeholder="At least 8 characters"
-                                placeholderTextColor="#9ca3af"
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry
-                            />
-                            <Pressable style={styles.forgotContainer}>
-                                <Text style={styles.forgotText}>Forgot password?</Text>
-                            </Pressable>
-                        </View>
+                        {/* EMAIL FIELD */}
+                        <Input 
+                            label="Email" 
+                            placeholder="you@example.com" 
+                            onChangeText={setEmail} 
+                            value={email}
+                            autoCapitalize="none" 
+                            keyboardType="email-address"
+                        />
+
+                        {/* PASSWORD FIELD */}
+                        <Input 
+                            label="Password" 
+                            placeholder="At least 8 characters" 
+                            value={password}
+                            onChangeText={setPassword} 
+                            secureTextEntry={true}
+                        />
+
+                        <Pressable style={styles.forgotContainer}>
+                            <Text style={styles.forgotText}>Forgot password?</Text>
+                        </Pressable>
 
                         {/* Login Button */}
                         <Pressable style={styles.loginButton} onPress={handleLogin}>
@@ -202,25 +199,6 @@ const styles = StyleSheet.create({
         color: "#6b7280",
         lineHeight: 22,
         marginBottom: 30,
-    },
-    inputContainer: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: "#374151",
-        marginBottom: 8,
-    },
-    input: {
-        backgroundColor: "#fff",
-        borderWidth: 1,
-        borderColor: "#e5e7eb",
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        fontSize: 15,
-        color: "#111827",
     },
     forgotContainer: {
         alignSelf: "flex-end",

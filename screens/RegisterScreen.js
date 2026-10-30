@@ -2,6 +2,7 @@ import { StyleSheet, Text, TextInput, View, Pressable, SafeAreaView, KeyboardAvo
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useState } from "react";
 import ErrorMessage from "../components/ErrorMessage";
+import Input from "../components/Input";
 
 export default function RegisterScreen({ navigation }) {
 
@@ -126,41 +127,34 @@ return (
                         <ErrorMessage errorMessage={errorMessage} color={errorMessageColor}/>
 
                         {/* Form Fields */}
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Display name</Text>
-                            <TextInput 
-                                style={styles.input}
-                                placeholder="How should we call you?"
-                                placeholderTextColor="#9ca3af"
-                                value={username}
-                                onChangeText={setUsername}
-                            />
-                        </View>
 
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Email</Text>
-                            <TextInput 
-                                style={styles.input}
-                                placeholder="you@example.com"
-                                placeholderTextColor="#9ca3af"
-                                value={email}
-                                onChangeText={setEmail}
-                                autoCapitalize="none"
-                                keyboardType="email-address"
-                            />
-                        </View>
+                        {/* DISPLAY NAME FIELD */}
+                        <Input 
+                            label="Display name" 
+                            placeholder="you@example.com" 
+                            onChangeText={setUsername} 
+                            value={username}
+                            autoCapitalize="none" 
+                            keyboardType="email-address"
+                        />
 
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.label}>Password</Text>
-                            <TextInput 
-                                style={styles.input}
-                                placeholder="At least 6 characters"
-                                placeholderTextColor="#9ca3af"
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry
-                            />
-                        </View>
+                        {/* EMAIL FIELD */}
+                        <Input 
+                            label="Email" 
+                            placeholder="you@example.com" 
+                            value={email} 
+                            onChangeText={setEmail} 
+
+                        />
+
+                        {/* PASSWORD FIELD */}
+                        <Input 
+                            label="Password" 
+                            placeholder="At least 8 characters" 
+                            value={password}
+                            onChangeText={setPassword} 
+                            secureTextEntry={true}
+                        />
 
                         {/* Register Button */}
                         <Pressable style={styles.registerButton} onPress={handleAccountCreation}>
@@ -252,25 +246,6 @@ const styles = StyleSheet.create({
         color: "#6b7280",
         lineHeight: 20,
         marginBottom: 20,
-    },
-    inputContainer: {
-        marginBottom: 14,
-    },
-    label: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: "#374151",
-        marginBottom: 6,
-    },
-    input: {
-        backgroundColor: "#fff",
-        borderWidth: 1,
-        borderColor: "#e5e7eb",
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 15,
-        color: "#111827",
     },
     registerButton: {
         backgroundColor: "#18181b", // Sleek dark button
